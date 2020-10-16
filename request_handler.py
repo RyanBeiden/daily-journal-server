@@ -1,7 +1,7 @@
 # import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-from entries import get_all_entries
+from entries import get_all_entries, get_single_entry
 
 class HandleRequests(BaseHTTPRequestHandler):
     def parse_url(self, path):
@@ -47,8 +47,7 @@ class HandleRequests(BaseHTTPRequestHandler):
 
             if resource == "entries":
                 if id is not None:
-                    pass # <- Remove after get_single_entry is defined
-                    # response = f"{get_single_entry(id)}"
+                    response = f"{get_single_entry(id)}"
                 else:
                     response = f"{get_all_entries()}"
 
