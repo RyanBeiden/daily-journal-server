@@ -89,6 +89,3 @@ def main():
     host = ''
     port = 8088
     HTTPServer((host, port), HandleRequests).serve_forever()
-
-if __name__ == "__main__":
-    main()
