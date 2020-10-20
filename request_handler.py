@@ -2,6 +2,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from entries import get_all_entries, get_single_entry, delete_entry, get_entry_by_word
+from moods import get_all_moods
 
 class HandleRequests(BaseHTTPRequestHandler):
     def parse_url(self, path):
@@ -50,13 +51,19 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response = f"{get_single_entry(id)}"
                 else:
                     response = f"{get_all_entries()}"
+            elif resource == "moods":
+                if id is not None:
+                    pass
+                    # response = f"{get_single_mood(id)}"
+                else:
+                    response = f"{get_all_moods()}"
 
         elif len(parsed) == 3:
             (resource, key, value) = parsed
 
-            if resource == "entries" and key == "word":
+            if resource == "entries" and key == "q":
                 response = get_entry_by_word(value)
-
+        
         self.wfile.write(response.encode())
 
 
@@ -74,3 +81,6 @@ def main():
     host = ''
     port = 8088
     HTTPServer((host, port), HandleRequests).serve_forever()
+
+if __name__ == "__main__":
+    main()
