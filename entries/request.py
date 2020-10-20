@@ -14,7 +14,7 @@ def get_all_entries():
             e.concept,
             e.entry,
             e.date,
-            e.mood_id
+            e.moodId
         FROM JournalEntries e
         """)
 
@@ -22,7 +22,7 @@ def get_all_entries():
         dataset = db_cursor.fetchall()
 
         for row in dataset:
-            entry = JournalEntry(row["id"], row["concept"], row["entry"], row["date"], row["mood_id"])
+            entry = JournalEntry(row["id"], row["concept"], row["entry"], row["date"], row["moodId"])
             entries.append(entry.__dict__)
     
     return json.dumps(entries)
@@ -38,18 +38,18 @@ def get_single_entry(id):
             e.concept,
             e.entry,
             e.date,
-            e.mood_id
+            e.moodId
         FROM JournalEntries e
         WHERE e.id = ?
         """, (id, ))
 
         data = db_cursor.fetchone()
 
-        entry = JournalEntry(data["id"], data["concept"], data["entry"], data["date"], data["mood_id"])
+        entry = JournalEntry(data["id"], data["concept"], data["entry"], data["date"], data["moodId"])
 
     return json.dumps(entry.__dict__)
 
-def get_entry_by_word(word):
+def get_entry_by_word(q):
     with sqlite3.connect("./dailyjournal.db") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
@@ -60,16 +60,16 @@ def get_entry_by_word(word):
             e.concept,
             e.entry,
             e.date,
-            e.mood_id
+            e.moodId
         FROM JournalEntries e
         WHERE e.entry LIKE "%"||?||"%"
-        """, (word, ))
+        """, (q, ))
 
         entries = []
         dataset = db_cursor.fetchall()
 
         for row in dataset:
-            entry = JournalEntry(row["id"], row["concept"], row["entry"], row["date"], row["mood_id"])
+            entry = JournalEntry(row["id"], row["concept"], row["entry"], row["date"], row["moodId"])
             entries.append(entry.__dict__)
 
     return json.dumps(entries)
