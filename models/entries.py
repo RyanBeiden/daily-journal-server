@@ -6,3 +6,4 @@ class JournalEntry():
         self.entry = entry
         self.date = date
         self.moodId = moodId
+        self.mood = None
