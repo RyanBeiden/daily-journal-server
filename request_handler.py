@@ -1,7 +1,8 @@
 # import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import json
 
-from entries import get_all_entries, get_single_entry, delete_entry, get_entry_by_word
+from entries import get_all_entries, get_single_entry, delete_entry, get_entry_by_word, create_journal_entry
 from moods import get_all_moods
 
 class HandleRequests(BaseHTTPRequestHandler):
@@ -77,12 +78,27 @@ class HandleRequests(BaseHTTPRequestHandler):
         
         self.wfile.write("".encode())
 
+    
+    def do_POST(self):
+        self._set_headers(201)
+        content_len = int(self.headers.get('content-length', 0))
+        post_body = self.rfile.read(content_len)
+        post_body = json.loads(post_body)
+
+        (resource, id) = self.parse_url(self.path)
+        new_object = None
+
+        if resource == "entries":
+            new_object = create_journal_entry(post_body)
+        
+        self.wfile.write(f"{new_object}".encode())
+
     # Prevents CORS Error when connecting to the frontend        
     def do_OPTIONS(self):
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-        self.send_header('Access-Control-Allow-Headers', 'X-Requested-With')
+        self.send_header('Access-Control-Allow-Headers', 'X-Requested-With, content-type')
         self.end_headers()
 
 def main():
