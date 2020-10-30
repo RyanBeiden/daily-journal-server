@@ -3,6 +3,7 @@ import json
 
 from models.entries import JournalEntry
 from models.moods import Mood
+from models.tags import Tag
 
 def get_all_entries():
     with sqlite3.connect("./dailyjournal.db") as conn:
@@ -32,6 +33,28 @@ def get_all_entries():
 
             entry.mood = mood.__dict__
             entries.append(entry.__dict__)
+
+            db_cursor.execute("""
+            SELECT
+                t.id,
+                t.name,
+                et.id,
+                et.entry_id,
+                et.tag_id
+            FROM EntryTags et
+            JOIN Tags t
+                ON t.id = et.tag_id
+            WHERE et.entry_id = ?
+            """, ( row['id'], ))
+
+            tags = []
+            tagset = db_cursor.fetchall()
+
+            for one_tag in tagset:
+                tag = Tag(one_tag['id'], one_tag['name'])
+                tags.append(tag.__dict__)
+            
+            entry.tags = tags
     
     return json.dumps(entries)
 
@@ -100,11 +123,19 @@ def create_journal_entry(new_entry):
             ( concept, entry, date, moodId )
         VALUES
             ( ?, ?, ?, ? )
-        
         """, (new_entry['concept'], new_entry['entry'], new_entry['date'], new_entry['moodId']))
 
         id = db_cursor.lastrowid
         new_entry['id'] = id
+
+        if new_entry['tags']:
+            for tag in new_entry['tags']:
+                db_cursor.execute("""
+                INSERT INTO EntryTags
+                    ( entry_id, tag_id )
+                VALUES 
+                    ( ?, ? )
+                """, (id, tag))
 
     json.dumps(new_entry)
 
